@@ -12,7 +12,7 @@ owner:
 ```
 paper1:
    author: 
-   - Ajinkya Khamkar
+   - Khamkar, Ajinkya
    hid:
    - 211
    title: Distributed environment for neural network
@@ -26,7 +26,7 @@ paper1:
 ```
 paper2:
    author: 
-   - Kumar, Saurabh
+   - Khamkar, Ajinkya
    hid:
    - 212
    title: This is my paper about the other abc
