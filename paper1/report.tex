@@ -1,8 +1,11 @@
 \documentclass[sigconf]{acmart}
 
 \usepackage{hyperref}
-
 \usepackage{endfloat}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
 \renewcommand{\efloatseparator}{\mbox{}} % no new page between figures
 
 \usepackage{booktabs} % For formal tables
@@ -19,6 +22,7 @@
 \orcid{1234-5678-9012}
 \affiliation{%
   \institution{Indiana University}
+  \streetaddress{P.O. Box 1212}
   \city{Bloomington} 
   \state{Indiana} 
   \postcode{47408}
@@ -35,26 +39,103 @@ somewhat loosely, to the formatting guidelines for
 ACM SIG Proceedings.
 \end{abstract}
 
-\keywords{ACM proceedings, \LaTeX, text tagging}
+\keywords{I523, Distributed Systems, Convolutional Neural Networks}
 
 
 \maketitle
 
 \section{Introduction}
 
-The \textit{proceedings} are the records of a
-conference. ACM seeks to give these
-conference by-products a uniform, high-quality appearance.  To do
-this, ACM has some rigid requirements for the format of the
-proceedings documents: there is a specified format (balanced double
-columns), a specified set of fonts (Arial or Helvetica and Times
-Roman) in certain specified sizes, a specified live area, centered on
-the page, specified size of margins, specified column width and gutter
-size.
+The past decade has seen the rise of Deep Neural Networks. Neural Networks have the ability to model complex non-linear functions by efficiently representing the input parameters as a system of linear equations with non-linear activation. They have achieved unparalleled success in the fields of Computer Vision, Natural Language Processing and Artificial Intelligence. A standard Deep Convolutional Neural Networks has an upwards of Million parameters to train\cite{NIPS2012_4824}. The data required to train these networks typically ranges in Hundred's of Gigabytes. Deep Neural Networks are inherently parallel in nature, with weights and gradient updates shared across layers within the network. It is thus possible train layers of the network in parallel across multiple machines to achieve efficient computational time and higher accuracy. The use of Graphical Processing Units has considerably reduced the time it takes to train these networks [6]. Graphical Processing Units perform resource unconstrained tasks in parallel to achieve high throughput. Graphical Processing Units are expensive to procure and are bounded by memory constraints. Existing Industrial architectures use a distributed computing paradigm capable of handling parallel computing tasks. Through this paper, I wish to highlight approaches which use cheaper commodity systems integrated in a distributed fashion to handle training such Deep Neural Networks.
 
+\section{Parallel and Distributed architectures}
+
+\subsection{Convolutional Neural Networks}
+
+Convolutional Neural Networks drive modern Computer Vision and Artificial Intelligence based research. The convolution operation involves sliding a filter of a predefined size over the input data and perform element-wise multiplication. They are capable of extracting higher level information from input data and projecting them to lower level embedding. The patterns identified in the lower level embedding can be used to perform various Machine Learning tasks such as classification, clustering, object recognition and source separation.
+
+
+\paragraph{\textbf{Parallelism of Convolution operation}}
+
+Every layer of a Convolutional Neural Network has a stacked input of filters. These filters are responsible for extracting various higher level information regarding the input data. The filters operations are independently applied to the input data. This makes it possible to compute these operations in parallel to each other and collate their results. Recent advanced software architectures such as tensorflow [4] and theano [5] are capable of achieving computation in parallel using multiple cores. Additionally Graphical Processing Units can be explicitly programmed for parallel implementation of the Convolution operator to achieve state of the art computational results.
+
+\subsection{Need For Distributed approaches}
+
+Standard Neural Networks have millions of parameters to train and optimize. Additionally the data required to train these systems ranges in Hundred's of Gigabytes. These computational constraints make it inefficient to train Deeper networks on stand alone machines. 
+
+\begin{itemize}
+\setlength\itemsep{1em}
+\item Data Parallelism - When the data required to train neural networks exceed the systems storage capacity, it is required to distribute the data across multiple machines and introduce a data pipeline to feed input to the network.
+\item Layer Parallelism - Recent research in Deep Convolutional Networks is focused on the 'wider' paradigm instead of the traditional 'deeper' paradigm [6,7]. Wider Convolutional Networks can be viewed as a stack of smaller networks connected in parallel.These smaller networks can be trained in parallel across multiple cores as these networks do not suffer from resource sharing.
+\item Model Parallelism - When the model being trained is too large to fit into the main memory. It is required to distribute different layers of the model across different machine and use distributed variants of Stochastic Gradient Descent to update each layer being processed at different machines.  
+\end{itemize}
+
+\section{Data Parallelism}
+
+Data parallelism involves storing the input data required to train our Convolutional Neural Network Model across multiple machines. Each machine runs the same network model. Each model is then trained on an ordered subset of the data. One of the biggest challenges faced in data parallelism is updation of model parameters. These are broadly classified into 2 categories.
+
+\begin{itemize}
+\setlength\itemsep{1em}
+\item Synchronous update - In synchronous updates, gradients are computed using the loss generated by each model on a mini-batch of the independent input. Weights are updated using a single gradient generated by averaging the losses of each model.
+
+\item Asynchronous update - In asynchronous updates, each model runs independently. Global parameters shared by multiple models are held in a global parameter server. Each model then fetches the updated parameters from the server to process the mini-batch
+\end{itemize}
+
+
+\subsection{Synchronous Updates}
+
+Zinkevich, Weimer,  Smola \& Li, 2010 [8] introduced a parallel variant of the traditional Stochastic Gradient Descent algorithm.  They designed a simple yet efficient algorithm which averaged the gradients generated by the multiple machines within the network. This method is shown to converge and provide an optimal speedup.
+
+\begin{algorithm}
+
+\caption{Parallel SGD (\{$ c^1,....,c^m\} , T, n, w_o,k$)}\label{SGD}
+
+\begin{algorithmic}[1]
+
+\For{ machine $ \in \{1....k\} $ in parallel}
+\State {$v_i  = SGD( \{ c^1,....,c^m \} , T, n, w_o)$}
+\EndFor
+\State {$ v = \frac{1}{k} \sum_{i=1}^{k} v_i $}
+\State {$Return \ v$}
+\end{algorithmic}
+
+\end{algorithm}
+
+
+\subsection{Asynchronous Updates}
+
+Dean et. Al, 2012 \cite{Dean:2012:LSD:2999134.2999271} introduced an asynchronous variant of the traditional Stochastic Gradient. They proposed the use of a centralized communication server which holds parameters used by all models running in parallel. The communication server is distributed across several machines. Each model requests the centralized server for updated parameters before processing the mini-batch. Thus each model requests only those machines which holds parameters relevant to its partition. After computation of the gradient post processing the mini-batch the centralized server is updated with the new gradients. Subsequently the parameters are updated using the newly computed gradient. Asynchronous updates are more robust as compared to Synchronous updates. If a machine within the network fails, other machines are still up and computing their gradients.  
+
+\begin{algorithm}
+
+\caption{Downpour SGD ($p,d$)}\label{DownpourSGD}
+
+\begin{algorithmic}[1]
+
+\For{ machine $ \in \{1....k\} $ in parallel}
+\State{$query \ updated \ parameters \ from \ server$}
+\State {$v_i  = SGD(p,d)$}
+\State{$ Update \ centralized \ server \ with \ v_i$}
+\State{$ p = p - \nabla v_i$}
+\EndFor
+\end{algorithmic}
+
+\end{algorithm}
+
+
+
+\section{Parallelism of Network layers}
+
+Recent research in Deep Convolutional Networks is focused on the 'wider' paradigm instead of the traditional 'deeper' paradigm [6,7]. Wider Convolutional Networks can be viewed as a stack of smaller networks connected in parallel. Each of these smaller networks is designed and optimized to extract complex relationships in the input data at different depth levels. Wider Networks are computationally efficient than deeper networks. These smaller networks can be trained in parallel across multiple cores as these networks do not suffer from resource sharing. Each network in a layer gets its own copy of the output from the previous layer. A master layer is required to collate the results of the smaller networks to be passed to the next layer of the Network. 
+
+\section{Parallelism of Networks}
+
+
+Different layers within the Neural Network share their weights and biases. Thus entire copies of The Neural Networks can be trained in parallel with different data inputs fed to the different networks. This significantly reduces the time it takes to train Deep Networks. Access to High Performance Computing resources is required to setup such an environment, this is one of the biggest drawbacks of training several full length networks in parallel.
 
 
 \bibliographystyle{ACM-Reference-Format}
+\bibliographystyle{unsrt}
 \bibliography{report} 
 
 \end{document}
