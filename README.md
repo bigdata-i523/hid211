@@ -26,7 +26,7 @@ paper1:
       between concurrent blocks. 
    url: https://github.com/bigdata-i523/hid211/paper1/
    type: latex
-   status: in progress
+   status: Completed
    chapter: Machine Learning
 ```
 # Paper 2
