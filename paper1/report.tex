@@ -1,19 +1,12 @@
 \documentclass[sigconf]{acmart}
 
-\usepackage{hyperref}
-\usepackage{endfloat}
+\input{format/i523}
+
 \usepackage{amsmath}
 \usepackage{algorithm}
-\usepackage[section]{placeins}
+% \usepackage[section]{placeins}
 \usepackage[noend]{algpseudocode}
 
-\renewcommand{\efloatseparator}{\mbox{}} % no new page between figures
-
-\usepackage{booktabs} % For formal tables
-
-\settopmatter{printacmref=false} % Removes citation information below abstract
-\renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference information in first column
-\pagestyle{plain} % removes running headers
 
 \begin{document}
 \title{Distributed Environment For Parallel Neural Networks}
@@ -33,6 +26,7 @@
 % The default list of authors is too long for headers}
 \renewcommand{\shortauthors}{B. Trovato et al.}
 
+\TODO{does not use our format}
 
 \begin{abstract}
 The past decade has seen the rise of Deep Neural Networks. A standard Deep Convolutional Neural Network has an upwards of Million parameters to train. The data required to train these networks typically ranges in Hundred's of Gigabytes, making it inefficient to train these networks on standalone machines. Graphical Processing Units decrease the computation time significantly but suffer from memory constraints. Existing Industrial architectures use a distributed computing paradigm capable of handling parallel computing tasks. I highlight approaches which use cheaper commodity systems integrated in a distributed fashion to handle training such Deep Neural Networks.
