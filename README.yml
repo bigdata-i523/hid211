@@ -1,0 +1,30 @@
+---
+owner:
+    hid: 211
+    name: Ajinkya Khamkar
+    url: https://github.com/bigdata-i523/hid211
+paper1:
+    abstract: "Deep Neural networks are inherently parallel in nature. Research is\
+        \ generally focused on the \"going deeper\" paradigm. More recent research\
+        \ is concentrated on \"going wider\" instead of just going deep.  Wider paradigms\
+        \ have computational advantage since they, can be executed concurrently in\
+        \ a distributed environment. They do not possess the constraint of data sharing\
+        \ between concurrent blocks. \n"
+    author:
+        - Khamkar, Ajinkya
+    chapter: Machine Learning
+    hid:
+        - 211
+    status: 100%
+    title: Distributed environment for neural network
+    type: latex
+    url: https://github.com/bigdata-i523/hid211/paper1/
+paper2:
+    abstract: This paper showcases tis and that and the other
+    author:
+        - Gregor von Laszewski
+    hid:
+        - 0
+    title: Benchmarking a BigData Docker deployment
+    type: report
+    url: https://github.com/bigdata-i523/sample-pid000/project/report.pdf
