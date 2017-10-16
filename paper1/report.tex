@@ -9,7 +9,7 @@
 
 
 \begin{document}
-\title{Distributed Environment For Parallel Neural Networks}
+\title{Distributed Environment for Parallel Neural Networks}
 
 
 \author{Ajinkya Khamkar}
@@ -24,22 +24,22 @@
 \email{adkhamka@iu.edu}
 
 % The default list of authors is too long for headers}
-\renewcommand{\shortauthors}{B. Trovato et al.}
+\renewcommand{\shortauthors}{K. Ajinkya}
 
 \TODO{does not use our format}
 
 \begin{abstract}
-The past decade has seen the rise of Deep Neural Networks. A standard Deep Convolutional Neural Network has an upwards of Million parameters to train. The data required to train these networks typically ranges in Hundred's of Gigabytes, making it inefficient to train these networks on standalone machines. Graphical Processing Units decrease the computation time significantly but suffer from memory constraints. Existing Industrial architectures use a distributed computing paradigm capable of handling parallel computing tasks. I highlight approaches which use cheaper commodity systems integrated in a distributed fashion to handle training such Deep Neural Networks.
+The past decade has seen the rise of Deep Neural Networks. A standard Deep Convolutional Neural Network has an upwards of Million parameters to train. Data required to train these networks typically ranges in Hundred's of Gigabytes, making it inefficient to train these networks on standalone machines. Graphical Processing Units decrease the computation time significantly but suffer from memory constraints. Existing Industrial architectures use a distributed computing paradigm capable of handling parallel computing tasks. We highlight approaches which use cheaper commodity systems integrated in a distributed fashion to handle training such Deep Neural Networks.
 \end{abstract}
 
-\keywords{I523, Distributed Systems, Convolutional Neural Networks, Parallel Systems, Deep Neural Networks}
+\keywords{I523,HID211, Distributed Systems, Convolutional Neural Networks, Parallel Systems, Deep Neural Networks}
 
 
 \maketitle
 
 \section{Introduction}
 
-The past decade has seen the rise of Deep Neural Networks. Neural Networks have the ability to model complex non-linear functions by efficiently representing the input parameters as a system of linear equations with non-linear activation. They have achieved unparalleled success in the fields of Computer Vision, Natural Language Processing and Artificial Intelligence. Section \ref{art} discusses the number of parameters required to be trained for popular deep architectures. Large amounts of data is required to train these parameters. Section \ref{size} discusses the size of the traditional data sets used to train these networks. Deep Neural Networks are inherently parallel in nature, with weights and gradient updates shared across layers within the network. Section \ref{parallel} discusses various ways to introduce parallelism while training Deep Neural Networks. Section \ref{data} discusses methodologies to update Model parameters when the data to train is distributed across multiple machines within the network.  Section \ref{layer} introduces methodologies to train multiple layers of the same network in parallel in a distributed fashion. 
+The past decade has seen the rise of Deep Neural Networks. Neural Networks have the ability to model complex non-linear functions by efficiently representing the input parameters as a system of linear equations with non-linear activation\cite{NIPS2012-4824}. They have achieved unparalleled success in the fields of Computer Vision, Natural Language Processing and Artificial Intelligence. Section \ref{art} discusses the number of parameters required to be trained for popular deep architectures. Large amounts of data is required to train these parameters. Section \ref{size} discusses the size of the traditional data sets used to train these networks. Deep Neural Networks are inherently parallel in nature, with weights and gradient updates shared across layers within the network. Section \ref{parallel} discusses various ways to introduce parallelism while training Deep Neural Networks. Section \ref{data} discusses methodologies to update Model parameters when the data to train is distributed across multiple machines within the network.  Section \ref{layer} introduces methodologies to train multiple layers of the same network in parallel in a distributed fashion. 
 
 \section{Popular Architectures}\label{art}
 
@@ -58,7 +58,7 @@ Convolutional Neural Networks drive modern Computer Vision and Artificial Intell
 
 \paragraph{\textbf{Parallelism of convolution operation}}
 
-Every layer of a Convolutional Neural Network has a stacked input of filters. These filters are responsible for extracting higher level information from the input data. The filters operations are independently applied to the input data. This makes it possible to compute these operations in parallel to each other and collate their results. Recent advanced software architectures such as tensorflow and theano are capable of achieving computation in parallel using multiple cores. Additionally Graphical Processing Units can be explicitly programmed for parallel implementation of the convolution operator to achieve state of the art computational results.
+Every layer of a Convolutional Neural Network has a stacked input of filters. These filters are responsible for extracting higher level information from the input data. The filters operations are independently applied to the input data. This makes it possible to compute these operations in parallel to each other and collate their results\cite{NIPS2012-4824}. Recent advanced software architectures such as tensorflow and theano are capable of achieving computation in parallel using multiple cores. Additionally Graphical Processing Units can be explicitly programmed for parallel implementation of the convolution operator to achieve state of the art computational results.
 
 \subsection{Need For distributed approaches}
 
@@ -66,8 +66,8 @@ Standard Convolutional Neural Networks have millions of parameters to train and 
 
 \begin{itemize}
 \setlength\itemsep{1em}
-\item Data Parallelism - When the data required to train neural networks exceed the systems storage capacity, it is required to distribute the data across multiple machines and introduce a data pipeline to feed input to the network.
-\item Model Parallelism - When the model being trained is too large to fit into the main memory. It is required to distribute different layers of the model across different machine and use distributed variants of Stochastic Gradient Descent to update each layer being processed on different machines.  
+\item Data Parallelism - When the data required to train neural networks exceed the systems storage capacity, it is required to distribute the data across multiple machines and introduce a data pipeline to feed input to the network\cite{Dean}.
+\item Model Parallelism - When the model being trained is too large to fit into the main memory. It is required to distribute different layers of the model across different machine and use distributed variants of Stochastic Gradient Descent to update each layer being processed on different machines\cite{Googlenet}.  
 \end{itemize}
 
 \section{Data Parallelism} \label{data}
@@ -84,13 +84,13 @@ Data parallelism involves storing the input data required to train our Convoluti
 
 \subsection{Synchronous Updates}
 
-Zinkevich, Weimer,  Smola \& Li, 2010 \cite{NIPS2010-4006} introduced a parallel variant of the traditional Stochastic Gradient Descent algorithm.  They designed a simple yet efficient algorithm which averaged the gradients generated by the multiple machines within the network. This method is shown to converge and provide an optimal speedup.
+Zinkevich, Weimer,  Smola \& Li, 2010 \cite{NIPS2010-4006} introduced a parallel variant of the traditional Stochastic Gradient Descent algorithm.  They designed a simple yet efficient algorithm [algorithm \ref{SGD}] which averaged the gradients generated by the multiple machines within the network. This method is shown to converge and provide an optimal speedup.
 
 \begin{algorithm}
 
 \caption{Parallel SGD (\{$ c^1,....,c^m\} , T, n, w_o,k$)}\label{SGD}
 
-\begin{algorithmic}[1]
+\begin{algorithmic}[1] 
 
 \For{ machine $ \in \{1....k\} $ in parallel}
 \State {$v_i  = SGD( \{ c^1,....,c^m \} , T, n, w_o)$}
@@ -104,7 +104,7 @@ Zinkevich, Weimer,  Smola \& Li, 2010 \cite{NIPS2010-4006} introduced a parallel
 
 \subsection{Asynchronous Updates}
 
-Dean et. Al, 2012 \cite{Dean} introduced an asynchronous variant of the traditional Stochastic Gradient. They proposed the use of a centralized communication server which holds parameters used by all models running in parallel. The communication server is distributed across several machines. Each model requests the centralized server for updated parameters before processing the mini-batch. Thus each model requests only those machines which holds parameters relevant to its partition. After computation of the gradient post processing the mini-batch the centralized server is updated with the new gradients. Subsequently the parameters are updated using the newly computed gradient. Asynchronous updates are more robust as compared to Synchronous updates. If a machine within the network fails, other machines are still up and computing their gradients.  
+Dean et. Al, 2012 \cite{Dean} introduced an asynchronous variant of the traditional Stochastic Gradient. They proposed the use of a centralized communication server which holds parameters used by all models running in parallel. The communication server is distributed across several machines [algorithm \ref{DownpourSGD}]. Each model requests the centralized server for updated parameters before processing the mini-batch. Thus each model requests only those machines which holds parameters relevant to its partition. After computation of the gradient post processing the mini-batch the centralized server is updated with the new gradients. Subsequently the parameters are updated using the newly computed gradient. Asynchronous updates are more robust as compared to Synchronous updates. If a machine within the network fails, other machines are still up and computing their gradients.  
 
 \begin{algorithm}[htbp]
 
