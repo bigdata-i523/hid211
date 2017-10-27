@@ -21,11 +21,11 @@ paper1:
     type: latex
     url: https://github.com/bigdata-i523/hid211/paper1/
 paper2:
-    abstract: This paper showcases tis and that and the other
+    abstract: Machine learning algorithms are computationally and time expensive. Optimizations are required to machine learning algorithms to improve their performance for big data.  
     author:
-        - Gregor von Laszewski
+        - Khamkar, Ajinkya
     hid:
-        - 0
-    title: Benchmarking a BigData Docker deployment
+        - 211
+    title: Machine learning optimizations for big data
     type: report
-    url: https://github.com/bigdata-i523/sample-pid000/project/report.pdf
+    url: https://github.com/bigdata-i523/hid211/paper2/
