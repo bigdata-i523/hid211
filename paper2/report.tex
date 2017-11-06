@@ -1,0 +1,210 @@
+\documentclass[sigconf]{acmart}
+
+\input{format/i523}
+
+\usepackage{amsmath}
+\usepackage{algorithm}
+% \usepackage[section]{placeins}
+\usepackage[noend]{algpseudocode}
+
+\begin{document}
+\title{Machine Learning Optimization for Big Data}
+
+\author{Ajinkya Khamkar}
+\affiliation{%
+  \institution{Indiana University}
+  \city{Bloomington} 
+  \state{IN} 
+  \postcode{47408}
+  \country{USA}}
+\email{adkhamka@iu.edu}
+
+
+% The default list of authors is too long for headers}
+\renewcommand{\shortauthors}{A. Khamkar}
+
+
+\begin{abstract}
+The last decade has seen the rise of big data. Industries and organizations collect consumer and machinery data to make data driven business decisions. Traditional naive variants of machine learning algorithms are ill equipped to handle the challenges posed by big data. Significant alterations are required to existing algorithms to ensure optimality and efficiency in big data applications.
+\end{abstract}
+
+\keywords{Machine Learning, Optimization, I523, HID211}
+
+
+\maketitle
+
+
+\section{Introduction}
+
+The last decade has seen the rise of big data. Industries and organizations collect consumer and machinery data to make data driven business decisions. Machine learning techniques are used to drive data driven decisions in organizations. Traditional machine learning algorithms were designed prior to the advent of big data era. They are ill-equipped for handling the scale and volume of big data tasks \cite{Papamakarios14comparisonof}. Recent advancements in hardware allow for running machine learning algorithms in parallel. In a parallel environment these algorithms suffer asynchronous gradient updates. In section \ref{data}, we discuss the need for efficient algorithms. In section \ref{traditional} we discuss traditional machine learning algorithms and their drawbacks. In section \ref{improve}, we discuss improvements to existing methods to support big data tasks. In section \ref{deploy},  we discuss various techniques to deploy these algorithms in a parallel environment for efficient and optimal performance. In section \ref{conclude}, we conclude our discussion.
+
+\section{Data} \label{data}
+
+Multinational Corporations and Organizations collect consumer information in order of terabytes. Social Media Platforms are regularly queried by millions of users from all across the globe. E-commerce websites process hundred thousands of orders daily. Sensors for varied tasks collect information per fraction of a second. This arises the need for computationally efficient algorithms to process and convert this data into information.
+
+\section{Traditional Algorithms} \label{traditional}
+
+Machine learning algorithms can broadly be classified in to supervised \cite{Kotsiantis} and unsupervised approaches. Supervised approaches require a training phase to train the parameters of the algorithm to draw decision boundaries. Unsupervised approaches require reconfiguration of the decision boundaries for a new batch of input data. Further, these algorithms can be characterized by their ability to draw linear and non linear decision boundaries. Non linear decision boundaries are difficult to draw as they require computation of higher order polynomials to best fit the input data. These decision boundaries are estimated using parameters of the algorithm. Traditional machine learning algorithms rely on gradient descent to estimate the true parameters representing the underlying data distribution\cite{Bottou2010}. Gradient descent seeks to iteratively optimize parameters such that they minimize the given error function.
+
+
+\subsection{Drawbacks of Traditional Algorithms}
+
+Big data is highly unconstrained and can span over billions of records and thousands of parameters to choose from. Data is pulled from a variety of sources and collected into data warehouses. With increasing dimensionality the model runs into following problems.
+
+\begin{itemize}
+
+\item The complexity of model increases. The decision boundary can span across multiple dimensions making it difficult to comprehend the impact of features.
+
+\item The variance of model increases. This leads to over fitting. The model will tightly fit to the input data and fail to generalize for unseen test data.
+
+\item Leads to wastage of computing resources. Resources would be spent on computing errors or coefficients of features which contribute little to the decision boundary.
+
+\end{itemize}
+
+Directly training machine learning algorithms to draw decision boundaries on this data is highly inefficient \cite{Bottou2010}. Traditional machine learning algorithms use gradient descent algorithm to compute the parameters. Classification and regression tasks can be formulated as an optimization task and parameters can be tuned to minimize the generated error. Error is computed during the forward pass of the algorithm. Gradient of the parameters $x$ is the partial differentiation of the error with respect to parameters.
+
+\[\mathrm{\nabla = } \ \begin{pmatrix}\frac{\partial f}{\partial x_1} & \cdots & \frac{\partial f}{\partial x_n}\end{pmatrix}\]
+
+
+Many algorithms compute the \textit{Hessian} of the error for smoother transitions over the error surface. \textit{Hessian} is the second order derivative of the error function.
+
+\[\mathrm{\nabla^2 = } \ \begin{pmatrix}\frac{\partial^2f}{\partial x_1 \partial x_1} & \cdots & \frac{\partial^2f}{\partial x_1 \partial x_n} \\ \vdots & \ddots & \vdots \\ \frac{\partial^2f}{\partial x_n \partial x_1} & \cdots & \frac{\partial^2f}{\partial x_n \partial x_n}\end{pmatrix}\]
+
+At higher dimensions it becomes infeasible to compute the true error gradient. We are thus required to compute an approximated error gradient. There is a trade off between convergence to the true gradient and computation time. In the following section we will discuss multiple gradient approximation techniques We also discuss their ability to scale and outperform traditional gradient descent techniques for big data tasks. Training these algorithms on commodity hardware pose additional space and computation constraints. The shear volume of the data ensures it cannot be stored and retrieved from single machines. Data is required to be distributed across several machines and several copies of the algorithm can be trained in parallel to improve efficiency and computation. The major drawback in training algorithms in parallel is asynchronous gradient updates. We discuss various methods to train algorithms in parallel optimally and efficiently.
+
+\section{Improvements to traditional algorithms} \label{improve}
+
+In this section we will review multiple methods which allow us to approximate the error gradient efficiently. These methods can be scaled to handle big data tasks. These methods converge to the true gradient for sufficiently large number of iterations.
+
+
+\subsection{Coordinate Descent Optimization}
+
+Coordinate descent algorithms \cite{Wright} is a derivative-free optimization technique. to approximate the convex function $f(x)$, optimize one column of $f(x)$ using $ min_{x \in R^n } f(x)$ at every iteration The algorithm converges for strictly convex error surfaces. Algorithm \ref{cd} is the general framework of coordinate descent algorithm. 
+
+\begin{algorithm}
+
+\caption{coordinate descent} \label{cd}
+
+\begin{algorithmic}[1] 
+\State{initialize $x_0$}
+\For{ t $\in$ 1...n }
+\State{Pick coordinate $i \in 1....n$ }
+\State{$x_i^{t+1} = x_i - \lambda[\nabla^t f(x_i)]$ }
+\EndFor
+\end{algorithmic}
+
+\end{algorithm}
+
+Here $\lambda$ represents the step size. The algorithm is simple and easily scalable. Block variants of coordinate descent algorithm are discussed below.
+
+Cyclic coordinate descent cycles through each block and computes the descent for each block iteratively. Random Block Coordinate algorithm \cite{pmlr-v37-nutini15} presented in algorithm \ref{rcd} draws from a random distribution and updates the parameters. Block Coordinate descent with Gauss-Southwell \cite{pmlr-v37-nutini15} rule presented in algorithm \ref{gscd} selects the block which minimizes the error in a greedy manner.
+
+\begin{algorithm}
+
+\caption{randomized coordinate descent} \label{rcd}
+
+\begin{algorithmic}[1] 
+\State{initialize $x_0$}
+\For{ t $\in$ 1...n }
+\State{sample from block $i \in 1....n$ }
+\State{$x_i^{t+1} = x_i - \lambda[\nabla^t f(x_i)]$ }
+\EndFor
+\end{algorithmic}
+
+\end{algorithm}
+
+\begin{algorithm}
+
+\caption{gauss-southwell coordinate descent} \label{gscd}
+
+\begin{algorithmic}[1] 
+\State{initialize $x_0$}
+\For{ t $\in$ 1...n }
+\State{select $i = argmax(\nabla^t f(x_i)]) $ }
+\State{$x_i^{t+1} = x_i - \lambda[\nabla^t f(x_i)]$ }
+\EndFor
+\end{algorithmic}
+
+\end{algorithm}
+
+The major drawback of Coordinate Descent algorithm is it converges for strictly convex optimization. For non-smooth convex optimization we can approximate the non-smoothness using a smooth function prior to performing coordinate descent. 
+
+\subsection{Stochastic Gradient Descent Optimization}
+
+Computing the full gradient every iteration is infeasible for big data tasks. Stochastic gradient Descent \cite{Bottou2010} iteratively computes the gradient per sample in the dataset. Samples are drawn at random from the dataset. This algorithm has 2 major drawbacks.
+
+\begin{itemize}
+
+\item As gradients are computed per sample. This leads to high bias and unstable learning, due to uncontrolled gradient jumps
+
+\item This method works relatively well for small to medium datasets and remains infeasible for big data
+
+\end{itemize}
+
+Instead of computing gradient per sample, splitting the dataset into multiple mini batches \cite{Bottou2010} and sampling randomly or cyclically from the mini-batches as presented in algorithm \ref{sgd} leads to much stable learning and faster convergence
+
+\begin{algorithm}
+
+\caption{minibatch stochastic gradient descent} \label{sgd}
+
+\begin{algorithmic}[1] 
+\State{initialize $w$ and learning rate $l$}
+\While {no convergence}
+\State{Randomly sample from minibatch distribution $\epsilon$}
+\State{update $w_{t+1} = w_t - l \frac{1}{|S_k|} \sum{\nabla_w f(S_k)}$}
+\State{$where \ S_k \ is \ sampled \  minibatch $ }
+\EndWhile
+\end{algorithmic}
+
+\end{algorithm}
+
+Stochastic gradient descent algorithm is prone to be stuck in local minimum. Convergence can be accelerated using Momentum techniques such as Nestevrov \cite{Duchi}, ADAGRAD \cite{Duchi} and ADADELTA \cite{DBLP:journals/corr/abs-1212-5701}.
+
+In the following section we discuss implementation of the above algorithms in a parallel computing environment
+  
+\section{Parallel Implementation of Gradient Descent} \label{deploy}
+
+Zinkevich, Weimer,  Smola \& Li, 2010 \cite{NIPS2010-4006} introduced parallel stochastic gradient optimization technique. This technique is shown to converge and is simple to implement.  Gradients generated by the workers in the network are averaged. Algorithm \ref{SGD} is applied iteratively until convergence 
+
+\begin{algorithm}
+
+\caption{Parallel SGD (\{$ c^1,....,c^m\} , T, n, w_o,k$)}\label{SGD}
+
+\begin{algorithmic}[1] 
+\While{no convergence }
+\For{ machine $ \in \{1....k\} $ in parallel}
+\State {$v_i  = SGD( \{ c^1,....,c^k \} , T, n, w_o)$}
+\State {$ \nabla v = \frac{1}{k} \sum_{i=1}^{k} v_i $}
+\State {$v^{+1} = v - \lambda \nabla v$}
+\EndFor
+\EndWhile
+\end{algorithmic}
+
+\end{algorithm}
+
+Meng et al. 2016 \cite{Meng}, introduce an asynchronous stochastic gradient descent variant with stochastic coordinate sampling. They use the following setup. Distributed environment with a master node and $p$ worker nodes, the parameters $\theta$ are distributed across several machines and each worker machine has non-overlapping subset of the data.
+
+\begin{enumerate}
+\item Each worker requests for updated parameters from master $\theta_k$
+\item Each worker draws a random mini-batch sample $S_k$ and draws a random set of coordinates $x_k \subset \theta$
+\item Each worker computes gradients without synchronization $\nabla x_k$
+\item Each worker forwards computed gradient and the sampled coordinates back to the master $\{\nabla x_k , x_k \}$
+\item Master updates the parameters asynchronously.
+\end{enumerate}
+
+
+Richtarik and Takac (2012) \cite{2012arXiv}, present a parallel stochastic coordinate descent algorithm where each processor updates a randomly selected subset of coordinates simultaneously. 
+
+\section{Conclusion} \label{conclude}
+
+Machine learning algorithms play an important role for big data applications. We wished to highlight theoretical optimization constraints for big data using traditional techniques. The shear volume of the data leads to other optimization problems. These include feature reduction, Randomized methods for matrix decomposition over Principal Component analysis and iterative model building which are beyond the scope of this discussion. We presented the drawbacks of traditional gradient descent, which remains the backbone of machine learning algorithms. We discussed several methods to approximate the true gradient of the error function or perform gradient-free parameter updates. We also discussed several parallel implementations of the above techniques for handling big data tasks efficiently and optimally. 
+
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{report} 
+
+\appendix
+
+\input{issues}
+
+\end{document}
