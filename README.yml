@@ -27,6 +27,7 @@ paper2:
         - Khamkar, Ajinkya
     hid:
         - 211
+    status: 11/06/2017 100%    
     title: Machine learning optimizations for big data
     type: report
     url: https://github.com/bigdata-i523/hid211/paper2/
