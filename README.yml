@@ -25,6 +25,7 @@ paper2:
     abstract: Machine learning algorithms are computationally and time expensive. Optimizations are required to machine learning algorithms to improve their performance for big data.  
     author:
         - Khamkar, Ajinkya
+    chapter: Machine Learning
     hid:
         - 211
     status: 11/06/2017 100%    
