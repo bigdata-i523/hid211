@@ -37,7 +37,6 @@ project:
     abstract: Machine learning algorithms are computationally and time expensive. Optimizations are required to machine learning algorithms to improve their performance for big data.  
     author:
         - Khamkar, Ajinkya
-    chapter: Machine Learning
     hid:
         - 211    
     title: Continuous motion tracking using Deep Neural Networks and Recurrent Neural Networks
