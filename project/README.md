@@ -3,7 +3,7 @@ Clone the repository/download it to local folder
 Download the dataset from google drive
 
 ```
-pending
+https://drive.google.com/drive/folders/1hm1a16BsNe9ohK6OdvwWqhKz61Cpsr8r?usp=sharing
 ```
 
 Download pre-trained model from the following url, {too large for github}
