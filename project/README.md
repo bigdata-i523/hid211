@@ -17,8 +17,21 @@ Move into project folder
 Run requirements.txt via bash file to ensure dependencies are installed
 
 ```
-
+Dependencies:
+pillow
+numpy
+scipy
+tensorflow
+keras
+h5py
+pandas
 ```
+```
+run bash script
+
+sudo bash install.sh
+```
+
 Run Main.py to run project. Main file expects the following arguements
 
 - train/test variable: 1 indicates train from scratch, 0 indicates out of box prediction
