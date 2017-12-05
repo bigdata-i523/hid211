@@ -1,0 +1,8 @@
+pillow
+numpy
+scipy
+tensorflow
+keras
+h5py
+
+
