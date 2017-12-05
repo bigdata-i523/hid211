@@ -42,6 +42,9 @@ Run Main.py to run project. Main file expects the following arguements
 Project/Code:> python3 Main.py 0 'path_to_dataset/2013/' 'path_to_model/' 
 
 Do not forget the slashes at the end
+```
 
 Output
+
+![predicted](https://user-images.githubusercontent.com/29556523/33593643-455070a6-d95e-11e7-9894-2d663a3e70f0.jpg)
 
